@@ -3,8 +3,8 @@ from rest_framework import generics, permissions, viewsets
 from .serializers import PostSerializer, CommentSerializer
 from .models import Post, Comment
 
-class PostListCreateView(generics.ListCreateAPIView):
-    queryset = Post.objects.all().order_by('-create_at')
+class PostListViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all ()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
