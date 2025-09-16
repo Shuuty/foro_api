@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from rest_framework import generics, permissions, viewsets
+from rest_framework import permissions, viewsets
+from .permissions import IsAuthorOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import PostSerializer, CommentSerializer, VoteSerializer
@@ -8,7 +8,7 @@ from .models import Post, Comment, Vote
 class PostListViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all ()
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -16,7 +16,7 @@ class PostListViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all().order_by('-created_at')
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -24,7 +24,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         post_id = self.request.data.get("post")
