@@ -28,3 +28,19 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.author.username} - {self.content[:20]}"
+    
+class Vote(models.Model):
+    VOTE_CHOICES = (
+        (1, "Upvote"),
+        (-1, "Downvote"),
+    )
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="votes")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="votes")
+    value = models.SmallIntegerField(choices=VOTE_CHOICES)
+
+    class Meta:
+        unique_together= ("user", "post")
+
+    def __str__(self):
+        return f"{self.user} -> {self.post} ({self.value})"
