@@ -1,9 +1,9 @@
 from rest_framework import permissions, viewsets
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly, IsAuthorOrCommunityOwnerOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .serializers import PostSerializer, CommentSerializer, VoteSerializer
-from .models import Post, Comment, Vote
+from .serializers import PostSerializer, CommentSerializer, VoteSerializer, CommunitySerializer
+from .models import Post, Comment, Vote, Community
 
 class PostListViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all ()
@@ -24,7 +24,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,  IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         post_id = self.request.data.get("post")
@@ -43,3 +43,12 @@ class VoteViewSet(viewsets.ModelViewSet):
         votes = Vote.objects.filter(user=request.user)
         serializer= self.get_serializer(votes, many=True)
         return Response(serializer.data)
+    
+class CommunityViewSet(viewsets.ModelViewSet):
+    queryset = Community.objects.all()
+    serializer_class = CommunitySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrCommunityOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
