@@ -4,11 +4,18 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import PostSerializer, CommentSerializer, VoteSerializer, CommunitySerializer
 from .models import Post, Comment, Vote, Community
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 class PostListViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all ()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    #Filtros de busqueda
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['community', 'author']
+    search_fieds = ["title", "content"]
+    ordering_fields = ["create_at", "title"]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
